@@ -1,0 +1,38 @@
+{
+  "study": "Unknown-reliability repetition and predetermined allocation",
+  "registered_date": "2026-11-10",
+  "status_at_registration": "analytic proofs completed; new numerical batch not yet run",
+  "question": "Finite-budget behavior of the proved adaptation gap and the boundary with one reliable channel",
+  "source_model": "Independent Gaussian sign pairs generated exactly as fair S1 and a sign product of mean (2/pi)asin(rho); fresh independent BSC flips for every query.",
+  "budget": "Hard cap on all returned bits, including pilot and every predetermined block. Query control metadata is not charged.",
+  "trials": 2000,
+  "root_seed": 2026111003,
+  "budgets": [16384, 262144, 4194304],
+  "equal_reliabilities": [0.015625, 0.03125, 0.0625, 0.125, 0.25, 0.5, 0.8, 1.0],
+  "correlations": [0.0, 0.6],
+  "unequal_cases": [
+    {"B": 262144, "a1": 0.03125, "a2": 0.8, "rho": 0.6},
+    {"B": 262144, "a1": 0.125, "a2": 0.8, "rho": 0.6},
+    {"B": 262144, "a1": 0.5, "a2": 0.8, "rho": 0.6}
+  ],
+  "methods": {
+    "two_stage": "m=floor(B/8) pilot repeats per channel on one held pair; ahat=max(abs(Z),m^-1/2); r_i=min(m,ceil(ahat_i^-2)); n=floor((B-2m)/(r1+r2)); corrected cross-mean with pilot reliabilities, clipped and mapped to rho.",
+    "dyadic": "Same pilot. J=floor(log2 B), b=floor((B-2m)/J). At depth 2^j collect floor(b/(2*2^j)) pairs for each j<J, omit empty blocks, assign all remaining complete pairs to depth one. Combine all blocks with w_j=n_j/prod_i[1+(ahat_i^-2-1)/r_j], then correct by ahat1*ahat2.",
+    "fixed_2": "Same pilot; all remaining fresh pairs use two reads per channel; pilot-corrected cross-mean.",
+    "fixed_100": "Same pilot; all remaining fresh pairs use 100 reads per channel; pilot-corrected cross-mean.",
+    "known_a": "Receives true reliabilities, no pilot; r_i=ceil(a_i^-2). Uses the unbiased posterior-product moment divided by gamma_r1(a1)*gamma_r2(a2), clipped and mapped to rho. This is a specified known-channel benchmark, not an asserted globally optimal finite-sample procedure."
+  },
+  "randomization": "Each parameter configuration has deterministic SeedSequence children. Unknown-channel methods share the same pilot observations; their fresh-pair observations use independent child streams. Replicates are independent.",
+  "exact_sampling": "For at most 4096 received-count cells, draw exact multinomial histograms. Otherwise use independent binomial noise counts and latent sign products. Adaptive trials are grouped by their selected integer depths. No normal approximation or truncated simulator.",
+  "primary_measures": ["MSE", "Monte Carlo standard error of MSE", "B*min(a1,a2)^2*MSE"],
+  "additional_records": ["all trial estimates", "pilot integer sums and floor flags", "adaptive depths and fresh-pair counts", "used bit budgets", "all dyadic block cross-means", "unclipped corrected estimates"],
+  "exact_checks": [
+    "Independent latent-sign and flip enumeration at small unequal depths against the count law.",
+    "Mean and second moment of raw cross statistic for unequal depths and boundary reliability one.",
+    "Posterior-product mean q*gamma1*gamma2 and second moment gamma1*gamma2.",
+    "Predetermined schedule and adaptive integer budgets at small, odd and study budgets.",
+    "Recompute every reported estimate from stored pilot and cross-moment records after the run."
+  ],
+  "interpretation": "Theorems concern a supremum over rho and reliability scales. Numerical curves are finite specified parameter settings and do not independently prove minimax optimality or exact optimal depth.",
+  "source_preservation": "Original model.py, run_validation.py, protocol.json and experiments/results remain unchanged. New source hashes are saved before execution and checked after execution."
+}
